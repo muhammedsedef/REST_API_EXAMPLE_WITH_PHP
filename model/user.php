@@ -5,6 +5,7 @@
         private $last_name;
         private $email;
         private $password;
+        private $created_date;
         private $is_active;
 
         public function getId() {
@@ -40,6 +41,13 @@
         }
         public function setPassword($password) {
             $this -> password = $password;
+        }
+
+        public function getCreatedDate() {
+            return $this -> getCreatedDate;
+        }
+        public function setCreatedDate($created_date) {
+            $this -> created_date = $created_date;
         }
 
         public function getIsActive() {

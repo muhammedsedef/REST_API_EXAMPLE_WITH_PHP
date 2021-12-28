@@ -83,6 +83,7 @@
                 $query;
                 if($id) {
                     $user_response_array = $this -> findUserById($id);
+                    unset($user_response_array['data']['password']);
                     return $user_response_array;
                 }
 
@@ -92,9 +93,10 @@
                     $query = "SELECT * FROM users ORDER BY first_name DESC";
                     $stmt = $this -> db -> getCon() -> prepare($query);
                     $stmt -> execute();
-                    $row = $stmt -> fetch(PDO::FETCH_ASSOC);
+                    
                     $data = array();
                     while($row = $stmt -> fetch(PDO::FETCH_ASSOC)) {
+                        unset($row['password']);
                         array_push($data, $row);
                     }
                     $response['status'] = 200;
@@ -186,6 +188,37 @@
                 die('ERROR: ' . $exception->getMessage());
             }
         }
+        
+        // login user 
+        function login($user) {
+            try {
+                $response = array();
+
+                // first check user is exist or not 
+                $user_response_array = $this -> findUserByEmail($user -> getEmail());
+                if($user_response_array['status'] == 404) {
+                    return $user_response_array;
+                }
+
+                if(password_verify($user -> getPassword() ,$user_response_array['data']['password'])) { // password is correct
+                    unset($user_response_array['data']['password']);
+                    $response['status'] = 200;
+                    $response['data'] = $user_response_array['data'];
+                    $response['message'] = 'Successfully logged in';
+                    return $response;
+                }
+                else { // password is incorrect
+                    $response['status'] = 400;
+                    $response['message'] = 'Password is incorrect';
+                    return $response;
+                }
+
+
+            } 
+            catch(PDOException $exception){
+                die('ERROR: ' . $exception->getMessage());
+            }
+        }
 
         // find user by id (helper function for DONT REPEAT YOURSELF) 
         function findUserById($id) {    
@@ -202,6 +235,35 @@
                         $response['status'] = 404;
                         $response['data'] = null;
                         $response['message'] = 'User not found';
+                        return $response;
+                    }
+                    else{
+                        $response['status'] = 200;
+                        $response['data'] = $row;
+                        $response['message'] = 'Success';
+                        return $response;
+                    }
+            } 
+            catch(PDOException $exception){
+                die('ERROR: ' . $exception->getMessage());
+            }
+        }
+
+        // find user by email (helper function for DONT REPEAT YOURSELF)
+        function findUserByEmail($email) {
+            try {
+                $response = array();
+
+                $query = "SELECT * FROM users WHERE email=? LIMIT 0,1";
+                    $stmt = $this->db->getCon() -> prepare($query);
+                    $stmt -> bindParam(1, $email);
+                    $stmt -> execute();
+                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                                    
+                    if(empty($row)) {
+                        $response['status'] = 404;
+                        $response['data'] = null;
+                        $response['message'] = 'No registered user found with the email you entered: ' .$email;
                         return $response;
                     }
                     else{

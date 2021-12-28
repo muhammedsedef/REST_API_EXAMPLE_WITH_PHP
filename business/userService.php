@@ -142,5 +142,33 @@
             }
 
         }
+
+        function login() {
+            try {
+                // get inputs
+                $json = file_get_contents('php://input');
+                $input = json_decode($json, TRUE);
+
+                // create new User object
+                $user = new User();
+
+                // get request body
+                $email = isset($input['email']) ? $input['email'] : null;
+                $password = isset($input['password']) ? $input['password'] : null;
+
+                $user -> setEmail($email);
+                $user -> setPassword($password);
+
+                $result = $this->userRepository -> login($user);
+                echo JSON(array(
+                    'status' => $result['status'],
+                    'data' => $result['data'],
+                    'message' => $result['message']
+                )); exit;
+            } 
+            catch (PDOException $exception) {
+                die('ERROR: ' . $exception->getMessage());
+            }
+        }
     }
 ?>
