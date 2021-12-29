@@ -62,9 +62,6 @@
                         return $response;
                     }
                 }
-
-                
-                
             }
             // show error
             catch(PDOException $exception){

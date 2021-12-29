@@ -1,0 +1,21 @@
+body{
+    background: #5E8B7E;
+}
+
+a:link {
+    text-decoration: none;
+}
+
+.btn-add{
+    background: #A7C4BC;
+}
+
+.btn-add:hover{
+    background: #2F5D62;
+}
+.btn-update{
+    background: #2F5D62;
+}
+.btn-delete{
+    background: #DFEEEA;
+}
